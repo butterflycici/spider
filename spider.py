@@ -20,5 +20,7 @@ for i in range(189):
         f=open("Operations Research-1.txt", "a", encoding = "utf-8")
         if len(div)>1:
                 f.write(value.string+";"+div[1].string+"\r\n")
+                f.close()
         else:
                 f.write(value.string+";"+"None"+"\r\n")
+                f.close()
