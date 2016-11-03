@@ -1,26 +1,40 @@
 import requests
 import re
 from bs4 import BeautifulSoup
-for i in range(189):
-    #url = r"http://apps.webofknowledge.com/summary.do?product=WOS&parentProduct=WOS&search_mode=GeneralSearch&parentQid=&qid=2&SID=Y1wnVLcTXuG7Kw7Aq4E&&update_back2search_link_param=yes&page="+str(i+1)
-    url=r"http://apps.webofknowledge.com/summary.do?product=WOS&parentProduct=WOS&search_mode=GeneralSearch&parentQid=&qid=1&SID=1BazTC7TWcKnx8RCPeT&&update_back2search_link_param=yes&page="+str(i+1)
-    #这是一本期刊的查询结果的起始网址，总共189页，有30本候选期刊，至少有30个起始网址
-    r=requests.get(url)
-    html=r.content
-    soup = BeautifulSoup(html,'html.parser')
-    a= soup.findAll("a", class_='smallV110') 
-    for j in range(len(a)):
-        value=a[j].find('value',attrs={"lang_id": ""})
-        #因为我需要的部分是局部动态加载的，下面这个网址是从控制台network里的XHR找到的
-        url1=r"http://apps.webofknowledge.com/ViewAbstract.do?product=WOS&search_mode=GeneralSearch&viewType=ViewAbstract&qid=1&SID=1BazTC7TWcKnx8RCPeT&page="+str(i+1)+"&doc="+str((i*10+j+1)
-        r1 = requests.get(url1)
-        html1 = r1.content
-        soup1 = BeautifulSoup(html1,'html.parser')
-        div=soup1.findAll('div')
-        f=open("Operations Research-1.txt", "a", encoding = "utf-8")
-        if len(div)>1:
-                f.write(value.string+";"+div[1].string+"\r\n")
-                f.close()
+for i in range(1,3073):
+    url_1="http://apps.webofknowledge.com/full_record.do?product=WOS&search_mode=GeneralSearch&qid=9&SID=R2pzNDSEViFRe9HKGNA&doc="
+    url_2=str(i)
+    url='{0}{1}'.format(url_1,url_2)
+    #print(url)
+    try:
+        
+        #timeout = 20    
+        #socket.setdefaulttimeout(timeout)#这里对整个socket层设置超时时间。后续文件中如果再使用到socket，不必再设置  
+        #sleep_download_time = 10  
+        #time.sleep(sleep_download_time) #这里时间自己设定  
+        #request = urllib.request.urlopen(url)#这里是要读取内容的url  
+        #content = request.read()#读取，一般会在这里报异常  
+        #request.close()
+        r=requests.get(url,timeout=(3.05, 27))
+        html=r.content
+        soup = BeautifulSoup(html,'html.parser')
+        #value= soup.find('div',{'class':'title'}).findNext('value') 
+        address=soup.findAll('td',{'class':'fr_address_row2'})
+        #print(E.text)
+        if len(address)>=1:
+            Address=address[0]
+            f=open("country+Annals of Operations Research.txt", "a", encoding = "utf-8")
+            f.write(str(i)+"|  |"+Address.text.split(", ")[-2]+"|"+Address.text.split(", ")[-1].split(".")[0]+"\r")
+            f.close()
+
+            #print(value.text,99,Address.text.split(", ")[-2],99,Address.text.split(", ")[-1].split(".")[0])
+                
         else:
-                f.write(value.string+";"+"None"+"\r\n")
-                f.close()
+            f=open("country+Annals of Operations Research.txt", "a", encoding = "utf-8")
+            f.write(str(i)+"|  |  |"+"\r")
+            f.close()
+                #R=soup.find(text=re.compile("Reprint Address")).findNext("a")
+                #print(E.string)
+                #print(value.text,Address.text.split(", ")[-1])
+    except Exception as e:
+        print (Exception,":",e) 
